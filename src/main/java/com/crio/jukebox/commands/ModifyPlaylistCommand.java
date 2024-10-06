@@ -1,0 +1,53 @@
+package com.crio.jukebox.commands;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.crio.jukebox.dtos.PlaylistSummaryDto;
+import com.crio.jukebox.exceptions.PlaylistNotFoundException;
+import com.crio.jukebox.exceptions.SongNotFoundException;
+import com.crio.jukebox.exceptions.UserNotFoundException;
+import com.crio.jukebox.services.IPlayListService;
+
+public class ModifyPlaylistCommand implements ICommand {
+    
+    private final IPlayListService playlistService;
+
+    public ModifyPlaylistCommand(IPlayListService playlistService) {
+        this.playlistService = playlistService;
+    }
+    
+    @Override
+    public void execute(List<String> tokens) {
+        String commandName = tokens.get(1);
+        String userId = tokens.get(2);
+        String playlistId = tokens.get(3);
+
+        List<String> songIds = new ArrayList<>();
+        for(int i = 4; i < tokens.size(); i++){
+            songIds.add(tokens.get(i));
+        }
+        PlaylistSummaryDto pDto = null;
+        try {
+            if(commandName.equals("ADD-SONG")){
+                pDto = playlistService.addSongplaylist(userId, playlistId, songIds);
+               
+            }
+            if(commandName.equals("DELETE-SONG")){
+                pDto = playlistService.deleteSongFromPlaylist(userId, playlistId, songIds);
+                
+            }
+            System.out.println(pDto);
+
+        } catch(UserNotFoundException u){
+            System.out.println(u.getMessage());
+        } catch(PlaylistNotFoundException p){
+            System.out.println(p.getMessage());
+        } catch(SongNotFoundException s){
+            System.out.println(s.getMessage());
+        } catch(RuntimeException r){
+            r.printStackTrace();
+        }
+
+    }
+}
